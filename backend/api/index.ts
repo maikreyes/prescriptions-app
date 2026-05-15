@@ -1,11 +1,16 @@
 import { createServer, IncomingMessage, ServerResponse } from 'http';
+import { fileURLToPath } from 'url';
+import { dirname, join } from 'path';
 import serverless from 'serverless-http';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 let handler: serverless.Handler | null = null;
 
 async function getHandler() {
   if (!handler) {
-    const { default: bootstrap } = await import('../dist/src/main.js');
+    const { default: bootstrap } = await import(join(__dirname, '../dist/src/main.js'));
     const app = await bootstrap();
     handler = serverless(app, {
       provider: 'vercel',
