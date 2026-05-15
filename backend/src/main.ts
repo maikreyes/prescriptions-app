@@ -13,6 +13,8 @@ const envPath = currentFilePath.includes('/dist/src/')
 
 loadEnv({ path: envPath, override: true });
 
+let app: Awaited<ReturnType<typeof NestFactory.create>>;
+
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
@@ -33,6 +35,12 @@ async function bootstrap() {
       forbidNonWhitelisted: true,
     }),
   );
-  await app.listen(process.env.PORT ?? 3000);
+  
+  if (process.env.VERCEL !== '1') {
+    await app.listen(process.env.PORT ?? 3000);
+  }
+  
+  return app;
 }
-bootstrap();
+
+export default bootstrap;
