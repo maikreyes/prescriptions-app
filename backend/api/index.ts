@@ -5,7 +5,7 @@ let handler: serverless.Handler | null = null;
 
 async function getHandler() {
   if (!handler) {
-    const { default: bootstrap } = await import('./dist/src/main.js');
+    const { default: bootstrap } = await import('../dist/src/main.js');
     const app = await bootstrap();
     handler = serverless(app, {
       provider: 'vercel',
