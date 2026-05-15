@@ -1,22 +1,17 @@
+import { config as loadEnv } from 'dotenv';
+import { dirname, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import cookieParser from 'cookie-parser';
 import { AppModule } from './app.module.js';
 
-if (!process.env.VERCEL) {
-  const { config: loadEnv } = await import('dotenv');
-  const { dirname, resolve } = await import('node:path');
-  const { fileURLToPath } = await import('node:url');
-  
-  const currentFilePath = fileURLToPath(import.meta.url);
-  const envPath = currentFilePath.includes('/dist/src/')
-    ? resolve(dirname(currentFilePath), '../../.env')
-    : resolve(dirname(currentFilePath), '../.env');
-  
-  loadEnv({ path: envPath, override: true });
-}
+const currentFilePath = fileURLToPath(import.meta.url);
+const envPath = currentFilePath.includes('/dist/src/')
+  ? resolve(dirname(currentFilePath), '../../.env')
+  : resolve(dirname(currentFilePath), '../.env');
 
-let app: Awaited<ReturnType<typeof NestFactory.create>>;
+loadEnv({ path: envPath, override: true });
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -38,12 +33,6 @@ async function bootstrap() {
       forbidNonWhitelisted: true,
     }),
   );
-  
-  if (process.env.VERCEL !== '1') {
-    await app.listen(process.env.PORT ?? 3000);
-  }
-  
-  return app;
+  await app.listen(process.env.PORT ?? 3000);
 }
-
-export default bootstrap;
+bootstrap();
