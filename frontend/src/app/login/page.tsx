@@ -101,7 +101,7 @@ export default function LoginPage() {
 
           <div className="mt-6 text-center text-sm text-gray-500">
             <p>Credenciales de prueba:</p>
-            <p>admin@admin.com / admin123</p>
+            <p>admin@test.com / admin123</p>
           </div>
         </CardContent>
       </Card>
