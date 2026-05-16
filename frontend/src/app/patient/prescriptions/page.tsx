@@ -1,13 +1,23 @@
-'use client';
+"use client";
 
-import { useState, useEffect, useCallback } from 'react';
-import { useRouter } from 'next/navigation';
-import { ProtectedRoute } from '@/components/layout/ProtectedRoute';
-import { DashboardLayout } from '@/components/layout/DashboardLayout';
-import { Button, Card, CardContent, Select, StatusBadge, Pagination, PageLoading, EmptyState, ErrorState } from '@/components/ui';
-import api from '@/lib/api';
-import { Prescription, PaginatedResponse } from '@/types';
-import { Eye, Download, CheckCircle } from 'lucide-react';
+import { useState, useEffect, useCallback } from "react";
+import { useRouter } from "next/navigation";
+import { ProtectedRoute } from "@/components/layout/ProtectedRoute";
+import { DashboardLayout } from "@/components/layout/DashboardLayout";
+import {
+  Button,
+  Card,
+  CardContent,
+  Select,
+  StatusBadge,
+  Pagination,
+  PageLoading,
+  EmptyState,
+  ErrorState,
+} from "@/components/ui";
+import api from "@/lib/api";
+import { Prescription, PaginatedResponse } from "@/types";
+import { Eye, Download, CheckCircle } from "lucide-react";
 
 interface QueryParams {
   page: number;
@@ -19,7 +29,12 @@ export default function PatientPrescriptionsPage() {
   const [prescriptions, setPrescriptions] = useState<Prescription[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
-  const [meta, setMeta] = useState({ page: 1, limit: 10, total: 0, totalPages: 0 });
+  const [meta, setMeta] = useState({
+    page: 1,
+    limit: 10,
+    total: 0,
+    totalPages: 0,
+  });
   const [query, setQuery] = useState<QueryParams>({
     page: 1,
     limit: 10,
@@ -34,9 +49,11 @@ export default function PatientPrescriptionsPage() {
         limit: query.limit.toString(),
       });
 
-      if (query.status) params.append('status', query.status);
+      if (query.status) params.append("status", query.status);
 
-      const response = await api.get<PaginatedResponse<Prescription>>(`/me/prescriptions?${params}`);
+      const response = await api.get<PaginatedResponse<Prescription>>(
+        `/me/prescriptions?${params}`,
+      );
       setPrescriptions(response.data.data);
       setMeta(response.data.meta);
     } catch (err) {
@@ -59,7 +76,7 @@ export default function PatientPrescriptionsPage() {
   };
 
   const handleConsume = async (prescriptionId: string) => {
-    if (!confirm('¿Está seguro que desea marcar esta receta como consumida?')) {
+    if (!confirm("¿Está seguro que desea marcar esta receta como consumida?")) {
       return;
     }
 
@@ -67,30 +84,30 @@ export default function PatientPrescriptionsPage() {
       await api.post(`/prescriptions/${prescriptionId}/consume`);
       fetchPrescriptions();
     } catch (err) {
-      alert('Error al consumir la receta');
+      alert("Error al consumir la receta");
     }
   };
 
   const handleDownloadPdf = async (prescriptionId: string, code: string) => {
     try {
       const response = await api.get(`/prescriptions/${prescriptionId}/pdf`, {
-        responseType: 'blob',
+        responseType: "blob",
       });
 
       const url = window.URL.createObjectURL(new Blob([response.data]));
-      const link = document.createElement('a');
+      const link = document.createElement("a");
       link.href = url;
-      link.setAttribute('download', `prescription-${code}.pdf`);
+      link.setAttribute("download", `prescription-${code}.pdf`);
       document.body.appendChild(link);
       link.click();
       link.remove();
     } catch (err) {
-      alert('Error al descargar el PDF');
+      alert("Error al descargar el PDF");
     }
   };
 
   return (
-    <ProtectedRoute allowedRoles={['patient']}>
+    <ProtectedRoute allowedRoles={["patient"]}>
       <DashboardLayout>
         <div className="space-y-6">
           <h1 className="text-2xl font-bold text-gray-900">Mis Recetas</h1>
@@ -100,12 +117,12 @@ export default function PatientPrescriptionsPage() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <Select
                   label="Estado"
-                  value={query.status || ''}
-                  onChange={(e) => handleFilterChange('status', e.target.value)}
+                  value={query.status || ""}
+                  onChange={(e) => handleFilterChange("status", e.target.value)}
                   options={[
-                    { value: '', label: 'Todas' },
-                    { value: 'pending', label: 'Pendiente' },
-                    { value: 'consumed', label: 'Consumida' },
+                    { value: "", label: "Todas" },
+                    { value: "pending", label: "Pendiente" },
+                    { value: "consumed", label: "Consumida" },
                   ]}
                 />
               </div>
@@ -124,20 +141,36 @@ export default function PatientPrescriptionsPage() {
                 <table className="w-full">
                   <thead className="bg-gray-50 border-b border-gray-200">
                     <tr>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Código</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Doctor</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Fecha</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Estado</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Acciones</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                        Código
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                        Doctor
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                        Fecha
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                        Estado
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                        Acciones
+                      </th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-200">
                     {prescriptions.map((prescription) => (
                       <tr key={prescription.id} className="hover:bg-gray-50">
-                        <td className="px-4 py-3 text-sm font-mono text-gray-900">{prescription.code}</td>
-                        <td className="px-4 py-3 text-sm text-gray-900">{prescription.author.user.name}</td>
+                        <td className="px-4 py-3 text-sm font-mono text-gray-900">
+                          {prescription.code}
+                        </td>
+                        <td className="px-4 py-3 text-sm text-gray-900">
+                          {prescription.author.user.name}
+                        </td>
                         <td className="px-4 py-3 text-sm text-gray-500">
-                          {new Date(prescription.createdAt).toLocaleDateString('es-CO')}
+                          {new Date(prescription.createdAt).toLocaleDateString(
+                            "es-CO",
+                          )}
                         </td>
                         <td className="px-4 py-3">
                           <StatusBadge status={prescription.status} />
@@ -147,18 +180,25 @@ export default function PatientPrescriptionsPage() {
                             <Button
                               variant="outline"
                               size="sm"
-                              onClick={() => window.location.href = `/patient/prescriptions/${prescription.id}`}
+                              onClick={() =>
+                                (window.location.href = `/patient/prescriptions/${prescription.id}`)
+                              }
                             >
                               <Eye className="w-4 h-4" />
                             </Button>
                             <Button
                               variant="outline"
                               size="sm"
-                              onClick={() => handleDownloadPdf(prescription.id, prescription.code)}
+                              onClick={() =>
+                                handleDownloadPdf(
+                                  prescription.id,
+                                  prescription.code,
+                                )
+                              }
                             >
                               <Download className="w-4 h-4" />
                             </Button>
-                            {prescription.status === 'pending' && (
+                            {prescription.status === "pending" && (
                               <Button
                                 variant="primary"
                                 size="sm"

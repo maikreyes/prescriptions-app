@@ -11,7 +11,7 @@ import { Stethoscope } from 'lucide-react';
 
 const loginSchema = z.object({
   email: z.string().email('Correo electrónico inválido'),
-  password: z.string().min(6, 'La contraseña debe tener al menos 6 caracteres'),
+  password: z.string().min(5, 'La contraseña debe tener al menos 5 caracteres'),
 });
 
 type LoginForm = z.infer<typeof loginSchema>;

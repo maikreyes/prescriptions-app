@@ -1,12 +1,12 @@
-'use client';
+"use client";
 
-import { useState, useEffect, useCallback } from 'react';
-import { ProtectedRoute } from '@/components/layout/ProtectedRoute';
-import { DashboardLayout } from '@/components/layout/DashboardLayout';
-import { Card, CardContent, PageLoading, ErrorState } from '@/components/ui';
-import api from '@/lib/api';
-import { Metrics, Prescription, PaginatedResponse } from '@/types';
-import { Users, UserCog, FileText, TrendingUp } from 'lucide-react';
+import { useState, useEffect, useCallback } from "react";
+import { ProtectedRoute } from "@/components/layout/ProtectedRoute";
+import { DashboardLayout } from "@/components/layout/DashboardLayout";
+import { Card, CardContent, PageLoading, ErrorState } from "@/components/ui";
+import api from "@/lib/api";
+import { Metrics, Prescription, PaginatedResponse } from "@/types";
+import { Users, UserCog, FileText, TrendingUp } from "lucide-react";
 import {
   BarChart,
   Bar,
@@ -20,7 +20,7 @@ import {
   Cell,
   LineChart,
   Line,
-} from 'recharts';
+} from "recharts";
 
 interface DailyData {
   date: string;
@@ -32,7 +32,7 @@ interface StatusData {
   value: number;
 }
 
-const COLORS = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444'];
+const COLORS = ["#3B82F6", "#10B981", "#F59E0B", "#EF4444"];
 
 export default function AdminDashboardPage() {
   const [metrics, setMetrics] = useState<Metrics | null>(null);
@@ -48,21 +48,26 @@ export default function AdminDashboardPage() {
 
     try {
       const [metricsRes, prescriptionsRes] = await Promise.all([
-        api.get<Metrics>('/admin/metrics'),
-        api.get<PaginatedResponse<Prescription>>('/admin/prescriptions?limit=100'),
+        api.get<Metrics>("/admin/metrics"),
+        api.get<PaginatedResponse<Prescription>>(
+          "/admin/prescriptions?limit=100",
+        ),
       ]);
 
       setMetrics(metricsRes.data);
       setPrescriptions(prescriptionsRes.data.data);
 
-      const statusCounts = prescriptionsRes.data.data.reduce((acc, p) => {
-        acc[p.status] = (acc[p.status] || 0) + 1;
-        return acc;
-      }, {} as Record<string, number>);
+      const statusCounts = prescriptionsRes.data.data.reduce(
+        (acc, p) => {
+          acc[p.status] = (acc[p.status] || 0) + 1;
+          return acc;
+        },
+        {} as Record<string, number>,
+      );
 
       setStatusData([
-        { name: 'Pendientes', value: statusCounts.pending || 0 },
-        { name: 'Consumidas', value: statusCounts.consumed || 0 },
+        { name: "Pendientes", value: statusCounts.pending || 0 },
+        { name: "Consumidas", value: statusCounts.consumed || 0 },
       ]);
 
       const last30Days: Record<string, number> = {};
@@ -71,12 +76,12 @@ export default function AdminDashboardPage() {
       for (let i = 29; i >= 0; i--) {
         const date = new Date(today);
         date.setDate(date.getDate() - i);
-        const dateStr = date.toISOString().split('T')[0];
+        const dateStr = date.toISOString().split("T")[0];
         last30Days[dateStr] = 0;
       }
 
       prescriptionsRes.data.data.forEach((p) => {
-        const dateStr = new Date(p.createdAt).toISOString().split('T')[0];
+        const dateStr = new Date(p.createdAt).toISOString().split("T")[0];
         if (last30Days[dateStr] !== undefined) {
           last30Days[dateStr]++;
         }
@@ -84,9 +89,12 @@ export default function AdminDashboardPage() {
 
       setDailyData(
         Object.entries(last30Days).map(([date, count]) => ({
-          date: new Date(date).toLocaleDateString('es-CO', { month: 'short', day: 'numeric' }),
+          date: new Date(date).toLocaleDateString("es-CO", {
+            month: "short",
+            day: "numeric",
+          }),
           count,
-        }))
+        })),
       );
     } catch (err) {
       setError(err as Error);
@@ -101,7 +109,7 @@ export default function AdminDashboardPage() {
 
   if (isLoading) {
     return (
-      <ProtectedRoute allowedRoles={['admin']}>
+      <ProtectedRoute allowedRoles={["admin"]}>
         <DashboardLayout>
           <PageLoading />
         </DashboardLayout>
@@ -111,7 +119,7 @@ export default function AdminDashboardPage() {
 
   if (error) {
     return (
-      <ProtectedRoute allowedRoles={['admin']}>
+      <ProtectedRoute allowedRoles={["admin"]}>
         <DashboardLayout>
           <ErrorState error={error} reset={fetchData} />
         </DashboardLayout>
@@ -120,7 +128,7 @@ export default function AdminDashboardPage() {
   }
 
   return (
-    <ProtectedRoute allowedRoles={['admin']}>
+    <ProtectedRoute allowedRoles={["admin"]}>
       <DashboardLayout>
         <div className="space-y-6">
           <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
@@ -133,7 +141,9 @@ export default function AdminDashboardPage() {
                 </div>
                 <div>
                   <p className="text-sm text-gray-500">Doctores</p>
-                  <p className="text-2xl font-bold text-gray-900">{metrics?.totals.doctors || 0}</p>
+                  <p className="text-2xl font-bold text-gray-900">
+                    {metrics?.totals.doctors || 0}
+                  </p>
                 </div>
               </CardContent>
             </Card>
@@ -145,7 +155,9 @@ export default function AdminDashboardPage() {
                 </div>
                 <div>
                   <p className="text-sm text-gray-500">Pacientes</p>
-                  <p className="text-2xl font-bold text-gray-900">{metrics?.totals.patients || 0}</p>
+                  <p className="text-2xl font-bold text-gray-900">
+                    {metrics?.totals.patients || 0}
+                  </p>
                 </div>
               </CardContent>
             </Card>
@@ -157,7 +169,9 @@ export default function AdminDashboardPage() {
                 </div>
                 <div>
                   <p className="text-sm text-gray-500">Recetas</p>
-                  <p className="text-2xl font-bold text-gray-900">{metrics?.totals.prescriptions || 0}</p>
+                  <p className="text-2xl font-bold text-gray-900">
+                    {metrics?.totals.prescriptions || 0}
+                  </p>
                 </div>
               </CardContent>
             </Card>
@@ -170,7 +184,8 @@ export default function AdminDashboardPage() {
                 <div>
                   <p className="text-sm text-gray-500">Consumidas</p>
                   <p className="text-2xl font-bold text-gray-900">
-                    {statusData.find(s => s.name === 'Consumidas')?.value || 0}
+                    {statusData.find((s) => s.name === "Consumidas")?.value ||
+                      0}
                   </p>
                 </div>
               </CardContent>
@@ -180,7 +195,9 @@ export default function AdminDashboardPage() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <Card>
               <CardContent>
-                <h2 className="text-lg font-semibold text-gray-900 mb-4">Recetas por Estado</h2>
+                <h2 className="text-lg font-semibold text-gray-900 mb-4">
+                  Recetas por Estado
+                </h2>
                 <div className="h-64">
                   <ResponsiveContainer width="100%" height="100%">
                     <PieChart>
@@ -195,7 +212,10 @@ export default function AdminDashboardPage() {
                         label={({ name, value }) => `${name}: ${value}`}
                       >
                         {statusData.map((entry, index) => (
-                          <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                          <Cell
+                            key={`cell-${index}`}
+                            fill={COLORS[index % COLORS.length]}
+                          />
                         ))}
                       </Pie>
                       <Tooltip />
@@ -207,7 +227,9 @@ export default function AdminDashboardPage() {
 
             <Card>
               <CardContent>
-                <h2 className="text-lg font-semibold text-gray-900 mb-4">Recetas por Día (Últimos 30 días)</h2>
+                <h2 className="text-lg font-semibold text-gray-900 mb-4">
+                  Recetas por Día (Últimos 30 días)
+                </h2>
                 <div className="h-64">
                   <ResponsiveContainer width="100%" height="100%">
                     <LineChart data={dailyData}>
@@ -220,7 +242,7 @@ export default function AdminDashboardPage() {
                         dataKey="count"
                         stroke="#3B82F6"
                         strokeWidth={2}
-                        dot={{ fill: '#3B82F6' }}
+                        dot={{ fill: "#3B82F6" }}
                       />
                     </LineChart>
                   </ResponsiveContainer>
@@ -231,36 +253,58 @@ export default function AdminDashboardPage() {
 
           <Card>
             <CardContent>
-              <h2 className="text-lg font-semibold text-gray-900 mb-4">Recetas Recientes</h2>
+              <h2 className="text-lg font-semibold text-gray-900 mb-4">
+                Recetas Recientes
+              </h2>
               <div className="overflow-x-auto">
                 <table className="w-full">
                   <thead className="bg-gray-50 border-b border-gray-200">
                     <tr>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Código</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Doctor</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Paciente</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Fecha</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Estado</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                        Código
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                        Doctor
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                        Paciente
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                        Fecha
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                        Estado
+                      </th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-200">
                     {prescriptions.slice(0, 10).map((prescription) => (
                       <tr key={prescription.id} className="hover:bg-gray-50">
-                        <td className="px-4 py-3 text-sm font-mono text-gray-900">{prescription.code}</td>
-                        <td className="px-4 py-3 text-sm text-gray-900">{prescription.author.user.name}</td>
-                        <td className="px-4 py-3 text-sm text-gray-900">{prescription.patient.user.name}</td>
+                        <td className="px-4 py-3 text-sm font-mono text-gray-900">
+                          {prescription.code}
+                        </td>
+                        <td className="px-4 py-3 text-sm text-gray-900">
+                          {prescription.author.user.name}
+                        </td>
+                        <td className="px-4 py-3 text-sm text-gray-900">
+                          {prescription.patient.user.name}
+                        </td>
                         <td className="px-4 py-3 text-sm text-gray-500">
-                          {new Date(prescription.createdAt).toLocaleDateString('es-CO')}
+                          {new Date(prescription.createdAt).toLocaleDateString(
+                            "es-CO",
+                          )}
                         </td>
                         <td className="px-4 py-3">
                           <span
                             className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                              prescription.status === 'consumed'
-                                ? 'bg-green-100 text-green-800'
-                                : 'bg-yellow-100 text-yellow-800'
+                              prescription.status === "consumed"
+                                ? "bg-green-100 text-green-800"
+                                : "bg-yellow-100 text-yellow-800"
                             }`}
                           >
-                            {prescription.status === 'consumed' ? 'Consumida' : 'Pendiente'}
+                            {prescription.status === "consumed"
+                              ? "Consumida"
+                              : "Pendiente"}
                           </span>
                         </td>
                       </tr>
